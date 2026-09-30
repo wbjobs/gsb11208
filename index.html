@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Emoji 兼容性检测台</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Emoji 兼容性检测台</h1>
+      <p class="muted">检测当前浏览器/系统对 Emoji、变体选择符、肤色、ZWJ 序列、旗帜序列的渲染能力，并给出语义一致的降级方案。</p>
+    </header>
+
+    <section class="env-panel">
+      <h2>环境能力</h2>
+      <div id="env-chips" class="chips"></div>
+      <div id="font-banner" class="banner warning hidden">
+        <strong>缺少 Emoji 字体：</strong>当前环境无法渲染彩色 Emoji，所有条目将以名称+码点降级展示。
+      </div>
+      <div id="storage-banner" class="banner info hidden">
+        <strong>持久化不可用：</strong>IndexedDB 被禁用，检测结果与手动覆盖仅保存在本次会话中。
+      </div>
+    </section>
+
+    <section class="controls">
+      <input id="search" type="search" placeholder="搜索名称 / 关键词 / 码点（如 U+1F600）/ 直接粘贴 Emoji" aria-label="搜索 Emoji">
+      <select id="category" aria-label="分类筛选">
+        <option value="all">全部分类</option>
+      </select>
+      <select id="status-filter" aria-label="状态筛选">
+        <option value="all">全部状态</option>
+        <option value="native">原生渲染</option>
+        <option value="degraded">已降级</option>
+        <option value="uncertain">存疑</option>
+      </select>
+      <button id="redetect" type="button" class="ghost">重新检测</button>
+      <span id="stat-line" class="muted"></span>
+    </section>
+
+    <main id="grid" class="grid" aria-live="polite"></main>
+    <p id="empty-hint" class="muted hidden">没有匹配的 Emoji，试试更换关键词或分类。</p>
+
+    <dialog id="detail" class="detail-dialog">
+      <div class="detail-head">
+        <h2 id="detail-title"></h2>
+        <button id="detail-close" class="ghost" type="button" aria-label="关闭">✕</button>
+      </div>
+
+      <div class="render-compare">
+        <div class="render-cell">
+          <div class="render-label">原生渲染</div>
+          <div id="detail-emoji" class="render-big"></div>
+        </div>
+        <div class="render-cell">
+          <div class="render-label">降级展示</div>
+          <div id="detail-fallback" class="render-big fallback-text"></div>
+        </div>
+      </div>
+
+      <h3>码点序列</h3>
+      <ul id="detail-cps" class="cp-list"></ul>
+
+      <h3>字素簇分割（Intl.Segmenter）</h3>
+      <p id="detail-seq" class="mono"></p>
+
+      <h3>宽度测量（32px 字号）</h3>
+      <ul id="detail-width" class="width-list"></ul>
+
+      <h3>检测结论</h3>
+      <ul id="detail-issues" class="issue-list"></ul>
+      <p id="detail-reason" class="muted"></p>
+
+      <h3>渲染策略</h3>
+      <div class="override-row">
+        <label><input type="radio" name="override" value="auto"> 自动（按检测结果）</label>
+        <label><input type="radio" name="override" value="force-fallback"> 强制降级</label>
+        <label><input type="radio" name="override" value="force-native"> 强制原生</label>
+      </div>
+
+      <div class="copy-row">
+        <button id="copy-emoji" data-copy type="button" class="primary">复制 Emoji</button>
+        <button id="copy-cps" data-copy type="button" class="ghost">复制码点</button>
+        <button id="copy-fallback" data-copy type="button" class="ghost">复制降级文本</button>
+      </div>
+    </dialog>
+
+    <dialog id="copy-manual" class="detail-dialog">
+      <div class="detail-head">
+        <h2>手动复制</h2>
+        <button id="copy-manual-close" class="ghost" type="button" aria-label="关闭">✕</button>
+      </div>
+      <p class="muted">浏览器拒绝了自动复制，请手动复制下面内容（已全选）。</p>
+      <textarea id="copy-manual-text" rows="3" readonly></textarea>
+    </dialog>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+
+    <footer class="footer muted">
+      检测在 Canvas 中完成（宽度测量 + 像素分析），字素分割使用 Intl.Segmenter（缺失时内置降级），
+      检测结果缓存于 IndexedDB；复杂检测在 Web Worker 的 OffscreenCanvas 中执行。
+    </footer>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
