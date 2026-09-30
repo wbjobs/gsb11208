@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emoji 跨平台兼容性检测</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="brand">😀 Emoji 兼容性检测</span>
+      <span id="detecting" class="badge badge-pending" hidden>检测中…</span>
+    </div>
+    <div class="topbar-right">
+      <button id="redetectBtn" class="btn">重新检测</button>
+    </div>
+  </header>
+
+  <!-- 环境能力总览 -->
+  <section class="cap-panel">
+    <h2>当前环境渲染能力</h2>
+    <div id="capList" class="cap-list"></div>
+    <p id="envInfo" class="muted"></p>
+    <p class="muted small">
+      检测基于 Canvas 离屏渲染：宽度比对（序列是否合并）、像素颜色（彩色/单色）、
+      豆腐块指纹（缺字形）。结果按「序列 + 字体 + UA」缓存于 IndexedDB。
+      启发式检测可能误判，详情面板提供全部原始指标供人工核对。
+    </p>
+  </section>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <input type="search" id="searchInput" placeholder="搜索名称 / 英文 / 码点（如 U+1F600）/ Emoji 本体…" />
+    <div id="catBar" class="chip-bar"></div>
+    <select id="statusFilter">
+      <option value="all">全部状态</option>
+      <option value="ok">仅正常</option>
+      <option value="bad">仅异常（降级/不支持）</option>
+    </select>
+  </div>
+  <p id="summary" class="muted summary"></p>
+
+  <!-- Emoji 卡片网格 -->
+  <main id="grid" class="grid"></main>
+  <p id="emptyHint" class="empty-hint" hidden>没有匹配的 Emoji。</p>
+
+  <!-- 详情弹窗 -->
+  <div id="detailModal" class="modal" hidden>
+    <div class="modal-card modal-wide">
+      <div class="detail-head">
+        <span id="dEmoji" class="detail-emoji"></span>
+        <div>
+          <h2 id="dName"></h2>
+          <p id="dEn" class="muted"></p>
+          <span id="dStatus" class="badge"></span>
+        </div>
+      </div>
+      <p id="dReason" class="reason"></p>
+
+      <h3>码点序列</h3>
+      <ul id="dCodepoints" class="cp-list"></ul>
+
+      <h3>测量指标</h3>
+      <table id="dMetrics" class="metrics"></table>
+
+      <div id="dFallbackWrap" hidden>
+        <h3>降级方案（语义保持一致）</h3>
+        <p class="fallback-preview">降级显示：<span id="dFallback"></span></p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="dCopyEmoji" class="btn">复制 Emoji</button>
+        <button id="dCopyCps" class="btn">复制码点</button>
+        <button id="dCopyJs" class="btn">复制 JS 转义</button>
+        <button id="dCopyFallback" class="btn">复制降级文本</button>
+        <span class="spacer"></span>
+        <button class="btn" data-close="detailModal">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 剪贴板降级弹窗 -->
+  <div id="manualCopyModal" class="modal" hidden>
+    <div class="modal-card">
+      <h2>复制失败</h2>
+      <p class="muted">浏览器拒绝了剪贴板权限，请手动选择文本复制：</p>
+      <textarea id="manualCopyText" rows="4" readonly></textarea>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button class="btn btn-primary" data-close="manualCopyModal">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/emoji-data.js"></script>
+  <script src="js/detector.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
